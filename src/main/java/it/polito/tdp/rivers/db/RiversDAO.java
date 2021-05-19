@@ -3,14 +3,43 @@ package it.polito.tdp.rivers.db;
 import java.util.LinkedList;
 import java.util.List;
 
+import it.polito.tdp.rivers.model.Flow;
 import it.polito.tdp.rivers.model.River;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 public class RiversDAO {
+
+	public List<Flow> getAllFlowOfRiver(River river){
+		final String sql = "SELECT day, flow, river FROM flow WHERE river=?";
+
+		List<Flow> flows = new LinkedList<Flow>();
+
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, river.getId());
+			ResultSet res = st.executeQuery();
+
+			while (res.next()) {
+				LocalDate day = res.getDate("day").toLocalDate();
+				Double flow = res.getDouble("flow");
+				flows.add(new Flow(day, flow, river));
+			}
+
+			conn.close();
+			
+		} catch (SQLException e) {
+			//e.printStackTrace();
+			throw new RuntimeException("SQL Error");
+		}
+
+		return flows;
+	}
 
 	public List<River> getAllRivers() {
 		

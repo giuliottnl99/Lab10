@@ -17,6 +17,7 @@ public class EntryPoint extends Application {
         Scene scene = new Scene(root);
          
         Model model = new Model();
+        model.caricaFiumi();
         FXMLController controller = loader.getController();
         controller.setModel(model);
         

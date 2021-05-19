@@ -4,10 +4,14 @@
 
 package it.polito.tdp.rivers;
 
+
 import java.net.URL;
+import java.util.LinkedList;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.rivers.model.Model;
+import it.polito.tdp.rivers.model.River;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -25,7 +29,7 @@ public class FXMLController {
     private URL location;
 
     @FXML // fx:id="boxRiver"
-    private ComboBox<?> boxRiver; // Value injected by FXMLLoader
+    private ComboBox<River> boxRiver; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtStartDate"
     private TextField txtStartDate; // Value injected by FXMLLoader
@@ -58,9 +62,47 @@ public class FXMLController {
         assert txtK != null : "fx:id=\"txtK\" was not injected: check your FXML file 'Scene.fxml'.";
         assert btnSimula != null : "fx:id=\"btnSimula\" was not injected: check your FXML file 'Scene.fxml'.";
         assert txtResult != null : "fx:id=\"txtResult\" was not injected: check your FXML file 'Scene.fxml'.";
+       
     }
     
     public void setModel(Model model) {
     	this.model = model;
+    	LinkedList<River> fiumi = ((Model) this.model).getFiumi();
+    	this.boxRiver.getItems().setAll(fiumi);
+
+    	
+    }
+    
+    @FXML
+    void trovaFiume(ActionEvent event) {
+    	River r = boxRiver.getValue();
+    	model.aggiungiRive(r);
+    	this.txtResult.setText("");
+    	if(r.getClass().isInstance(new River())) {
+    		if(r.inizializzato == false)
+    			r.createInfoFiume();
+    		
+    		//this.txtResult.setText(r.descriviti());
+    		this.txtStartDate.setText(r.getFirstFlowDate().toString());
+    		this.txtEndDate.setText(r.getLastFlowDate().toString());
+    		this.txtNumMeasurements.setText(String.valueOf(r.getFlows().size()) );
+    		this.txtFMed.setText(String.valueOf( r.getFlowAvg() ));
+    	}
+    }
+    
+    @FXML
+    void simulate(ActionEvent event) {
+    	this.txtResult.setText("");
+    	double k = Double.valueOf(this.txtK.getText());
+    	River f = this.boxRiver.getValue();
+    	boolean verifica = model.Startsimulate(k, f);
+    	if(verifica==false) {
+    		this.txtResult.setText("Inserisci un k maggiore o uguale a zero");
+    	}
+    	else {
+    		String result = model.getResultSimulation();
+    		this.txtResult.setText(result);
+    	}
+    	
     }
 }
